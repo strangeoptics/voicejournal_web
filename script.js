@@ -1,7 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     const categorySelect = document.getElementById('category-select');
     const journalEntriesContainer = document.getElementById('journal-entries');
+    const loadMoreButton = document.getElementById('load-more-button');
     const apiUrl = 'http://localhost:8080';
+
+    // Paginierung Status
+    let currentPage = 1;
+    const pageSize = 5;
+    let currentCategoryId = null;
+    let lastRenderedDate = null;
 
     // Modal Elemente
     const modal = document.getElementById('edit-modal');
@@ -38,48 +45,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Journal-Einträge für eine Kategorie laden
-    async function fetchJournalEntries(categoryId) {
+    async function fetchJournalEntries(categoryId, append = false) {
         if (!categoryId) {
             journalEntriesContainer.innerHTML = '';
+            loadMoreButton.style.display = 'none';
             return;
         }
-        journalEntriesContainer.innerHTML = '<p>Lade Einträge...</p>';
+
+        if (!append) {
+            currentPage = 1;
+            currentCategoryId = categoryId;
+            lastRenderedDate = null;
+            journalEntriesContainer.innerHTML = '<p>Lade Einträge...</p>';
+            loadMoreButton.style.display = 'none';
+        } else {
+            loadMoreButton.textContent = 'Lade...';
+            loadMoreButton.disabled = true;
+        }
+
         try {
-            const response = await fetch(`${apiUrl}/journalentries/category/${categoryId}`);
+            const response = await fetch(`${apiUrl}/journalentries/category/${categoryId}?page=${currentPage}&pageSize=${pageSize}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const entries = await response.json();
-            console.log('Empfangene Einträge:', entries); // Hinzugefügt zur Überprüfung
+            
+            if (!append) {
+                journalEntriesContainer.innerHTML = '';
+            }
+
             displayJournalEntries(entries);
+
+            // Button Logik
+            if (entries.length < pageSize) {
+                loadMoreButton.style.display = 'none';
+            } else {
+                loadMoreButton.style.display = 'block';
+                loadMoreButton.textContent = 'Mehr laden';
+                loadMoreButton.disabled = false;
+            }
+
+            currentPage++;
+
         } catch (error)
         {
             console.error(`Fehler beim Laden der Journal-Einträge für Kategorie ${categoryId}:`, error);
-            journalEntriesContainer.innerHTML = `<p>Fehler beim Laden der Einträge für die ausgewählte Kategorie.</p>`;
+            if (!append) {
+                journalEntriesContainer.innerHTML = `<p>Fehler beim Laden der Einträge für die ausgewählte Kategorie.</p>`;
+            } else {
+                loadMoreButton.textContent = 'Fehler beim Laden';
+                loadMoreButton.disabled = false;
+            }
         }
     }
 
     // Journal-Einträge als Chat-Liste anzeigen
     function displayJournalEntries(entries) {
-        journalEntriesContainer.innerHTML = '';
-        if (entries.length === 0) {
+        if (entries.length === 0 && !journalEntriesContainer.hasChildNodes()) {
             journalEntriesContainer.innerHTML = '<p>Keine Einträge für diese Kategorie gefunden.</p>';
             return;
         }
 
         const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
-        let lastDate = null;
 
         sortedEntries.forEach(entry => {
             const dateObj = new Date(entry.timestamp);
             const dateString = dateObj.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            if (dateString !== lastDate) {
+            if (dateString !== lastRenderedDate) {
                 const dateHeader = document.createElement('div');
                 dateHeader.classList.add('date-header');
                 dateHeader.textContent = dateString;
                 journalEntriesContainer.appendChild(dateHeader);
-                lastDate = dateString;
+                lastRenderedDate = dateString;
             }
 
             const bubble = document.createElement('div');
@@ -105,6 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
     categorySelect.addEventListener('change', (event) => {
         const categoryId = event.target.value;
         fetchJournalEntries(categoryId);
+    });
+
+    // Event Listener für Load More Button
+    loadMoreButton.addEventListener('click', () => {
+        if (currentCategoryId) {
+            fetchJournalEntries(currentCategoryId, true);
+        }
     });
 
     // Modal Funktionen
