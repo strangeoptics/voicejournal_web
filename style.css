@@ -36,7 +36,7 @@ h1 {
 .chat-container {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 5px;
     max-height: 60vh;
     overflow-y: auto;
     padding: 10px;
@@ -49,7 +49,7 @@ h1 {
     padding: 15px;
     width: 100%; /* Volle Breite */
     box-sizing: border-box; /* Stellt sicher, dass Padding die Breite nicht beeinflusst */
-    margin-bottom: 10px; /* Abstand zwischen den Einträgen */
+    margin-bottom: 0; /* Abstand zwischen den Einträgen */
 }
 
 .journal-entry .timestamp {
