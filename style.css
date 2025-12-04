@@ -69,3 +69,7 @@ h1 {
     position: relative;
     clear: both;
 }
+
+.entry-content {
+    white-space: pre-wrap;
+}

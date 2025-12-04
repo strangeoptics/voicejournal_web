@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             bubble.addEventListener('click', () => openEditModal(entry));
 
             const content = document.createElement('div');
+            content.classList.add('entry-content');
             content.textContent = entry.content;
 
             const timestamp = document.createElement('span');

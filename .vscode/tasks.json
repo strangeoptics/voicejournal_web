@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "append_css",
+			"type": "shell",
+			"command": "echo \".entry-content { white-space: pre-wrap; }\" >> c:\\programming\\projects\\voicejournal\\style.css",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}
