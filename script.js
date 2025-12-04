@@ -3,6 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const journalEntriesContainer = document.getElementById('journal-entries');
     const apiUrl = 'http://localhost:8080';
 
+    // Modal Elemente
+    const modal = document.getElementById('edit-modal');
+    const closeButton = document.querySelector('.close-button');
+    const saveButton = document.getElementById('save-button');
+    const cancelButton = document.getElementById('cancel-button');
+    const editContentTextarea = document.getElementById('edit-content');
+    let currentEditingEntry = null;
+
     // Kategorien laden und Dropdown füllen
     async function fetchCategories() {
         try {
@@ -76,6 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const bubble = document.createElement('div');
             bubble.classList.add('journal-entry');
+            // Click-Event zum Öffnen des Modals hinzufügen
+            bubble.addEventListener('click', () => openEditModal(entry));
 
             const content = document.createElement('div');
             content.textContent = entry.content;
@@ -94,6 +104,59 @@ document.addEventListener('DOMContentLoaded', () => {
     categorySelect.addEventListener('change', (event) => {
         const categoryId = event.target.value;
         fetchJournalEntries(categoryId);
+    });
+
+    // Modal Funktionen
+    function openEditModal(entry) {
+        currentEditingEntry = entry;
+        editContentTextarea.value = entry.content;
+        modal.style.display = 'block';
+    }
+
+    function closeEditModal() {
+        modal.style.display = 'none';
+        currentEditingEntry = null;
+    }
+
+    async function saveEntry() {
+        if (!currentEditingEntry) return;
+
+        const newContent = editContentTextarea.value;
+        const updatedEntry = { ...currentEditingEntry, content: newContent };
+
+        try {
+            // Versuch: Update über ID in der URL (Standard REST)
+            const response = await fetch(`${apiUrl}/journalentries/${updatedEntry.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedEntry)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // UI aktualisieren (Liste neu laden)
+            const categoryId = categorySelect.value;
+            fetchJournalEntries(categoryId);
+            closeEditModal();
+
+        } catch (error) {
+            console.error('Fehler beim Speichern des Eintrags:', error);
+            alert('Fehler beim Speichern des Eintrags.');
+        }
+    }
+
+    // Event Listener für Modal
+    closeButton.addEventListener('click', closeEditModal);
+    cancelButton.addEventListener('click', closeEditModal);
+    saveButton.addEventListener('click', saveEntry);
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            closeEditModal();
+        }
     });
 
     // Initiales Laden der Kategorien

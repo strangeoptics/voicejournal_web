@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Journal</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="modal.css">
 </head>
 <body>
     <h1>Journal-Einträge</h1>
@@ -19,6 +20,19 @@
 
         <div id="journal-entries" class="chat-container">
             <!-- Journal-Einträge werden hier dynamisch eingefügt -->
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Eintrag bearbeiten</h2>
+            <textarea id="edit-content" rows="10"></textarea>
+            <div class="modal-actions">
+                <button id="save-button">Speichern</button>
+                <button id="cancel-button">Abbrechen</button>
+            </div>
         </div>
     </div>
 
