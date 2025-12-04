@@ -1,0 +1,14 @@
+{
+  "name": "voicejournal-frontend",
+  "version": "1.0.0",
+  "description": "A simple web interface to display journal entries from a REST API.",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=8081"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "live-server": "^1.2.2"
+  }
+}
