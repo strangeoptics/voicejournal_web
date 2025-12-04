@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const entries = await response.json();
+            console.log('Empfangene Einträge:', entries); // Hinzugefügt zur Überprüfung
             displayJournalEntries(entries);
         } catch (error)
         {
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .sort((a, b) => a.timestamp - b.timestamp) // Nach Zeitstempel sortieren
             .forEach(entry => {
                 const bubble = document.createElement('div');
-                bubble.classList.add('chat-bubble', 'right');
+                bubble.classList.add('journal-entry');
 
                 const content = document.createElement('div');
                 content.textContent = entry.content;

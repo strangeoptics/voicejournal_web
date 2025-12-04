@@ -43,24 +43,18 @@ h1 {
     border-top: 1px solid #eee;
 }
 
-.chat-bubble {
+.journal-entry {
+    background-color: #f0f0f0; /* Leichtes Grau */
+    border-radius: 8px; /* Abgerundete Ecken */
     padding: 15px;
-    border-radius: 20px;
-    max-width: 70%;
-    word-wrap: break-word;
-    line-height: 1.5;
+    width: 100%; /* Volle Breite */
+    box-sizing: border-box; /* Stellt sicher, dass Padding die Breite nicht beeinflusst */
+    margin-bottom: 10px; /* Abstand zwischen den Einträgen */
 }
 
-.chat-bubble.right {
-    background-color: #007bff;
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 5px;
-}
-
-.chat-bubble .timestamp {
+.journal-entry .timestamp {
     font-size: 0.8em;
-    color: #eee;
+    color: #666;
     display: block;
     margin-top: 5px;
     text-align: right;
