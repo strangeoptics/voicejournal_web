@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const sortedEntries = entries.sort((a, b) => a.timestamp - b.timestamp);
+        const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
         let lastDate = null;
 
         sortedEntries.forEach(entry => {
