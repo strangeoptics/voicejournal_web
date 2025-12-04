@@ -59,23 +59,35 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        entries
-            .sort((a, b) => a.timestamp - b.timestamp) // Nach Zeitstempel sortieren
-            .forEach(entry => {
-                const bubble = document.createElement('div');
-                bubble.classList.add('journal-entry');
+        const sortedEntries = entries.sort((a, b) => a.timestamp - b.timestamp);
+        let lastDate = null;
 
-                const content = document.createElement('div');
-                content.textContent = entry.content;
+        sortedEntries.forEach(entry => {
+            const dateObj = new Date(entry.timestamp);
+            const dateString = dateObj.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-                const timestamp = document.createElement('span');
-                timestamp.classList.add('timestamp');
-                timestamp.textContent = new Date(entry.timestamp).toLocaleString('de-DE');
+            if (dateString !== lastDate) {
+                const dateHeader = document.createElement('div');
+                dateHeader.classList.add('date-header');
+                dateHeader.textContent = dateString;
+                journalEntriesContainer.appendChild(dateHeader);
+                lastDate = dateString;
+            }
 
-                bubble.appendChild(content);
-                bubble.appendChild(timestamp);
-                journalEntriesContainer.appendChild(bubble);
-            });
+            const bubble = document.createElement('div');
+            bubble.classList.add('journal-entry');
+
+            const content = document.createElement('div');
+            content.textContent = entry.content;
+
+            const timestamp = document.createElement('span');
+            timestamp.classList.add('timestamp');
+            timestamp.textContent = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+            bubble.appendChild(content);
+            bubble.appendChild(timestamp);
+            journalEntriesContainer.appendChild(bubble);
+        });
     }
 
     // Event Listener für das Dropdown
