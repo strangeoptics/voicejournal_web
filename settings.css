@@ -1,0 +1,29 @@
+.settings {
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    border: 1px solid #eee;
+}
+
+#api-url {
+    padding: 8px;
+    width: 250px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    margin-right: 10px;
+}
+
+#refresh-api {
+    padding: 8px 15px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#refresh-api:hover {
+    background-color: #5a6268;
+}

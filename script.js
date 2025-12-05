@@ -2,7 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const categorySelect = document.getElementById('category-select');
     const journalEntriesContainer = document.getElementById('journal-entries');
     const loadMoreButton = document.getElementById('load-more-button');
-    const apiUrl = 'http://localhost:8080';
+    const apiUrlInput = document.getElementById('api-url');
+    const refreshApiButton = document.getElementById('refresh-api');
+    
+    // API Host aus LocalStorage laden oder Standardwert setzen
+    let apiHost = localStorage.getItem('voicejournal_api_host') || 'localhost';
+    let apiUrl = `http://${apiHost}:8080`;
+    apiUrlInput.value = apiHost;
 
     // Paginierung Status
     let currentPage = 1;
@@ -161,6 +167,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listener für Neuer Eintrag Button
     newEntryButton.addEventListener('click', () => openEditModal(null));
+
+    // Event Listener für API Host Änderung
+    refreshApiButton.addEventListener('click', () => {
+        let newHost = apiUrlInput.value.trim();
+        
+        if (newHost) {
+            apiHost = newHost;
+            apiUrl = `http://${apiHost}:8080`;
+            localStorage.setItem('voicejournal_api_host', apiHost);
+            
+            // UI zurücksetzen und neu laden
+            journalEntriesContainer.innerHTML = '';
+            loadMoreButton.style.display = 'none';
+            categorySelect.innerHTML = '<option value="">--Bitte eine Kategorie auswählen--</option>';
+            currentCategoryId = null;
+            
+            fetchCategories();
+        }
+    });
 
     // Modal Funktionen
     function openEditModal(entry) {
