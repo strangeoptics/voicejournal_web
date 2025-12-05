@@ -36,15 +36,20 @@
     cursor: pointer;
 }
 
-#edit-content {
+#edit-content, #edit-date {
     width: 100%;
+    box-sizing: border-box; /* Verhindert, dass Padding die Breite vergrößert */
     padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 20px;
+    margin-top: 5px;
+    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    resize: vertical;
     font-family: inherit;
+}
+
+#edit-content {
+    resize: vertical;
+    margin-bottom: 20px;
 }
 
 .modal-actions {

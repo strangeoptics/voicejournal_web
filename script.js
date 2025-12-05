@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');
     const editContentTextarea = document.getElementById('edit-content');
+    const editDateInput = document.getElementById('edit-date');
     let currentEditingEntry = null;
 
     // Kategorien laden und Dropdown füllen
@@ -156,6 +157,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function openEditModal(entry) {
         currentEditingEntry = entry;
         editContentTextarea.value = entry.content;
+        
+        // Datum für datetime-local formatieren (YYYY-MM-DDTHH:mm)
+        const date = new Date(entry.timestamp);
+        // Zeitzonen-Offset berücksichtigen, damit die lokale Zeit angezeigt wird
+        const offset = date.getTimezoneOffset() * 60000;
+        const localIsoString = new Date(date.getTime() - offset).toISOString().slice(0, 16);
+        editDateInput.value = localIsoString;
+
         modal.style.display = 'block';
     }
 
@@ -168,7 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentEditingEntry) return;
 
         const newContent = editContentTextarea.value;
-        const updatedEntry = { ...currentEditingEntry, content: newContent };
+        const newDateString = editDateInput.value;
+        const newTimestamp = new Date(newDateString).getTime();
+
+        const updatedEntry = { 
+            ...currentEditingEntry, 
+            content: newContent,
+            timestamp: newTimestamp
+        };
 
         try {
             // Versuch: Update über ID in der URL (Standard REST)
