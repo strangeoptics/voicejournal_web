@@ -36,7 +36,7 @@
     cursor: pointer;
 }
 
-#edit-content, #edit-date {
+#edit-content, #edit-date, #edit-end-date {
     width: 100%;
     box-sizing: border-box; /* Verhindert, dass Padding die Breite vergrößert */
     padding: 10px;

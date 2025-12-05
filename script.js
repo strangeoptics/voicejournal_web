@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelButton = document.getElementById('cancel-button');
     const editContentTextarea = document.getElementById('edit-content');
     const editDateInput = document.getElementById('edit-date');
+    const editEndDateInput = document.getElementById('edit-end-date');
     const editCategoriesContainer = document.getElementById('edit-categories');
     let currentEditingEntry = null;
     let allCategories = [];
@@ -200,6 +201,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const offset = date.getTimezoneOffset() * 60000;
             const localIsoString = new Date(date.getTime() - offset).toISOString().slice(0, 16);
             editDateInput.value = localIsoString;
+
+            // Enddatum formatieren
+            if (entry.stop_datetime) {
+                const endDate = new Date(entry.stop_datetime);
+                const endOffset = endDate.getTimezoneOffset() * 60000;
+                const localEndIsoString = new Date(endDate.getTime() - endOffset).toISOString().slice(0, 16);
+                editEndDateInput.value = localEndIsoString;
+            } else {
+                editEndDateInput.value = '';
+            }
         } else {
             modalTitle.textContent = 'Neuer Eintrag';
             editContentTextarea.value = '';
@@ -209,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const offset = now.getTimezoneOffset() * 60000;
             const localIsoString = new Date(now.getTime() - offset).toISOString().slice(0, 16);
             editDateInput.value = localIsoString;
+            editEndDateInput.value = '';
         }
 
         // Kategorien Checkboxen generieren
@@ -252,6 +264,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const newContent = editContentTextarea.value;
         const newDateString = editDateInput.value;
         const newStartDatetime = new Date(newDateString).getTime();
+        
+        const newEndDateString = editEndDateInput.value;
+        let newStopDatetime = null;
+        if (newEndDateString) {
+            newStopDatetime = new Date(newEndDateString).getTime();
+        }
 
         // Ausgewählte Kategorien sammeln
         const selectedCategoryIds = Array.from(editCategoriesContainer.querySelectorAll('input[type="checkbox"]:checked'))
@@ -262,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let entryData = {
             content: newContent,
             start_datetime: newStartDatetime,
-            stop_datetime: newStartDatetime, // Vorläufig gleich start_datetime setzen
+            stop_datetime: newStopDatetime,
             categoryIds: selectedCategoryIds
         };
 
