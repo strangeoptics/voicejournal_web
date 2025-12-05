@@ -8,6 +8,14 @@
 			"args": [],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "append_button_css",
+			"type": "shell",
+			"command": "echo \".primary-button { padding: 10px 20px; margin-left: 10px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; } .primary-button:hover { background-color: #218838; }\" >> c:\\programming\\projects\\voicejournal\\button.css",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

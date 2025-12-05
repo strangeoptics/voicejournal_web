@@ -143,6 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const newEntryButton = document.getElementById('new-entry-button');
+    const modalTitle = document.getElementById('modal-title');
+
     // Event Listener für das Dropdown
     categorySelect.addEventListener('change', (event) => {
         const categoryId = event.target.value;
@@ -156,20 +159,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Event Listener für Neuer Eintrag Button
+    newEntryButton.addEventListener('click', () => openEditModal(null));
+
     // Modal Funktionen
     function openEditModal(entry) {
         currentEditingEntry = entry;
-        editContentTextarea.value = entry.content;
         
-        // Datum für datetime-local formatieren (YYYY-MM-DDTHH:mm)
-        const date = new Date(entry.timestamp);
-        // Zeitzonen-Offset berücksichtigen, damit die lokale Zeit angezeigt wird
-        const offset = date.getTimezoneOffset() * 60000;
-        const localIsoString = new Date(date.getTime() - offset).toISOString().slice(0, 16);
-        editDateInput.value = localIsoString;
+        if (entry) {
+            modalTitle.textContent = 'Eintrag bearbeiten';
+            editContentTextarea.value = entry.content;
+            
+            // Datum für datetime-local formatieren (YYYY-MM-DDTHH:mm)
+            const date = new Date(entry.timestamp);
+            const offset = date.getTimezoneOffset() * 60000;
+            const localIsoString = new Date(date.getTime() - offset).toISOString().slice(0, 16);
+            editDateInput.value = localIsoString;
+        } else {
+            modalTitle.textContent = 'Neuer Eintrag';
+            editContentTextarea.value = '';
+            
+            // Aktuelles Datum setzen
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localIsoString = new Date(now.getTime() - offset).toISOString().slice(0, 16);
+            editDateInput.value = localIsoString;
+        }
 
         // Kategorien Checkboxen generieren
         editCategoriesContainer.innerHTML = '';
+        const currentSelectedCategoryId = parseInt(categorySelect.value);
+
         allCategories.forEach(category => {
             const label = document.createElement('label');
             label.classList.add('category-checkbox');
@@ -178,9 +198,16 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.type = 'checkbox';
             checkbox.value = category.id;
             
-            // Prüfen ob die Kategorie dem Eintrag zugeordnet ist
-            if (entry.categoryIds && entry.categoryIds.includes(category.id)) {
-                checkbox.checked = true;
+            if (entry) {
+                // Bearbeiten: Prüfen ob die Kategorie dem Eintrag zugeordnet ist
+                if (entry.categoryIds && entry.categoryIds.includes(category.id)) {
+                    checkbox.checked = true;
+                }
+            } else {
+                // Neu: Aktuell ausgewählte Kategorie vorselektieren
+                if (category.id === currentSelectedCategoryId) {
+                    checkbox.checked = true;
+                }
             }
             
             label.appendChild(checkbox);
@@ -197,8 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function saveEntry() {
-        if (!currentEditingEntry) return;
-
         const newContent = editContentTextarea.value;
         const newDateString = editDateInput.value;
         const newTimestamp = new Date(newDateString).getTime();
@@ -207,21 +232,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedCategoryIds = Array.from(editCategoriesContainer.querySelectorAll('input[type="checkbox"]:checked'))
             .map(cb => parseInt(cb.value));
 
-        const updatedEntry = { 
-            ...currentEditingEntry, 
+        let url = `${apiUrl}/journalentries`;
+        let method = 'POST';
+        let entryData = {
             content: newContent,
             timestamp: newTimestamp,
             categoryIds: selectedCategoryIds
         };
 
+        if (currentEditingEntry) {
+            // Update (PUT)
+            url = `${apiUrl}/journalentries/${currentEditingEntry.id}`;
+            method = 'PUT';
+            // Bestehende Daten nehmen und mit neuen überschreiben (hasImage bleibt erhalten)
+            entryData = { ...currentEditingEntry, ...entryData };
+        } else {
+            // Neu (POST)
+            // Standardwerte für neue Einträge setzen
+            entryData.hasImage = false;
+        }
+
+        console.log('Sende Daten an Server:', entryData); // Debugging
+
         try {
-            // Versuch: Update über ID in der URL (Standard REST)
-            const response = await fetch(`${apiUrl}/journalentries/${updatedEntry.id}`, {
-                method: 'PUT',
+            const response = await fetch(url, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(updatedEntry)
+                body: JSON.stringify(entryData)
             });
 
             if (!response.ok) {

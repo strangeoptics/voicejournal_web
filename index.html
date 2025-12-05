@@ -18,6 +18,7 @@
             <select id="category-select">
                 <option value="">--Bitte eine Kategorie auswählen--</option>
             </select>
+            <button id="new-entry-button" class="primary-button">Neuer Eintrag</button>
         </div>
 
         <div id="journal-entries" class="chat-container">
@@ -30,7 +31,7 @@
     <div id="edit-modal" class="modal">
         <div class="modal-content">
             <span class="close-button">&times;</span>
-            <h2>Eintrag bearbeiten</h2>
+            <h2 id="modal-title">Eintrag bearbeiten</h2>
             <label for="edit-date" style="display:block; margin-bottom: 5px;">Datum & Uhrzeit:</label>
             <input type="datetime-local" id="edit-date">
             
