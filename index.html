@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="modal.css">
     <link rel="stylesheet" href="button.css">
+    <link rel="stylesheet" href="categories.css">
 </head>
 <body>
     <h1>Journal-Einträge</h1>
@@ -32,6 +33,12 @@
             <h2>Eintrag bearbeiten</h2>
             <label for="edit-date" style="display:block; margin-bottom: 5px;">Datum & Uhrzeit:</label>
             <input type="datetime-local" id="edit-date">
+            
+            <label style="display:block; margin-bottom: 5px;">Kategorien:</label>
+            <div id="edit-categories" class="categories-container">
+                <!-- Checkboxen werden hier dynamisch eingefügt -->
+            </div>
+
             <textarea id="edit-content" rows="10"></textarea>
             <div class="modal-actions">
                 <button id="save-button">Speichern</button>

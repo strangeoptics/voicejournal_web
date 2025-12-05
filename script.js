@@ -17,7 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelButton = document.getElementById('cancel-button');
     const editContentTextarea = document.getElementById('edit-content');
     const editDateInput = document.getElementById('edit-date');
+    const editCategoriesContainer = document.getElementById('edit-categories');
     let currentEditingEntry = null;
+    let allCategories = [];
 
     // Kategorien laden und Dropdown füllen
     async function fetchCategories() {
@@ -27,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const categories = await response.json();
+            allCategories = categories; // Speichern für späteren Zugriff
             populateCategoryDropdown(categories);
         } catch (error) {
             console.error('Fehler beim Laden der Kategorien:', error);
@@ -165,6 +168,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const localIsoString = new Date(date.getTime() - offset).toISOString().slice(0, 16);
         editDateInput.value = localIsoString;
 
+        // Kategorien Checkboxen generieren
+        editCategoriesContainer.innerHTML = '';
+        allCategories.forEach(category => {
+            const label = document.createElement('label');
+            label.classList.add('category-checkbox');
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.value = category.id;
+            
+            // Prüfen ob die Kategorie dem Eintrag zugeordnet ist
+            if (entry.categoryIds && entry.categoryIds.includes(category.id)) {
+                checkbox.checked = true;
+            }
+            
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(' ' + category.category));
+            editCategoriesContainer.appendChild(label);
+        });
+
         modal.style.display = 'block';
     }
 
@@ -180,10 +203,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const newDateString = editDateInput.value;
         const newTimestamp = new Date(newDateString).getTime();
 
+        // Ausgewählte Kategorien sammeln
+        const selectedCategoryIds = Array.from(editCategoriesContainer.querySelectorAll('input[type="checkbox"]:checked'))
+            .map(cb => parseInt(cb.value));
+
         const updatedEntry = { 
             ...currentEditingEntry, 
             content: newContent,
-            timestamp: newTimestamp
+            timestamp: newTimestamp,
+            categoryIds: selectedCategoryIds
         };
 
         try {
