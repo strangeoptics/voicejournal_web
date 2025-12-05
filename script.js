@@ -116,10 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const sortedEntries = entries.sort((a, b) => b.timestamp - a.timestamp);
+        const sortedEntries = entries.sort((a, b) => b.start_datetime - a.start_datetime);
 
         sortedEntries.forEach(entry => {
-            const dateObj = new Date(entry.timestamp);
+            const dateObj = new Date(entry.start_datetime);
             const dateString = dateObj.toLocaleDateString('de-DE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
             if (dateString !== lastRenderedDate) {
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editContentTextarea.value = entry.content;
             
             // Datum für datetime-local formatieren (YYYY-MM-DDTHH:mm)
-            const date = new Date(entry.timestamp);
+            const date = new Date(entry.start_datetime);
             const offset = date.getTimezoneOffset() * 60000;
             const localIsoString = new Date(date.getTime() - offset).toISOString().slice(0, 16);
             editDateInput.value = localIsoString;
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function saveEntry() {
         const newContent = editContentTextarea.value;
         const newDateString = editDateInput.value;
-        const newTimestamp = new Date(newDateString).getTime();
+        const newStartDatetime = new Date(newDateString).getTime();
 
         // Ausgewählte Kategorien sammeln
         const selectedCategoryIds = Array.from(editCategoriesContainer.querySelectorAll('input[type="checkbox"]:checked'))
@@ -261,7 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let method = 'POST';
         let entryData = {
             content: newContent,
-            timestamp: newTimestamp,
+            start_datetime: newStartDatetime,
+            stop_datetime: newStartDatetime, // Vorläufig gleich start_datetime setzen
             categoryIds: selectedCategoryIds
         };
 
