@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="settings.css">
 </head>
 <body>
-    <h1>Journal-Einträge</h1>
+    <h1>Journal</h1>
 
     <div class="container" style="position: relative;">
         <button id="settings-toggle" class="settings-toggle" title="Einstellungen">⚙️</button>
@@ -22,9 +22,9 @@
         </div>
 
         <div class="controls">
-            <label for="category-select">Kategorie auswählen:</label>
+            <label for="category-select">Kategorie:</label>
             <select id="category-select">
-                <option value="">--Bitte eine Kategorie auswählen--</option>
+                <option value="">--Kategorie auswählen--</option>
             </select>
             <button id="new-entry-button" class="primary-button">Neuer Eintrag</button>
         </div>
@@ -40,11 +40,16 @@
         <div class="modal-content">
             <span class="close-button">&times;</span>
             <h2 id="modal-title">Eintrag bearbeiten</h2>
-            <label for="edit-date" style="display:block; margin-bottom: 5px;">Startzeit:</label>
-            <input type="datetime-local" id="edit-date">
-
-            <label for="edit-end-date" style="display:block; margin-bottom: 5px;">Endzeit:</label>
-            <input type="datetime-local" id="edit-end-date">
+            <div class="date-row">
+                <div class="date-group">
+                    <label for="edit-date">Startzeit:</label>
+                    <input type="datetime-local" id="edit-date">
+                </div>
+                <div class="date-group">
+                    <label for="edit-end-date">Endzeit:</label>
+                    <input type="datetime-local" id="edit-end-date">
+                </div>
+            </div>
             
             <label style="display:block; margin-bottom: 5px;">Kategorien:</label>
             <div id="edit-categories" class="categories-container">

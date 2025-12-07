@@ -82,3 +82,27 @@
 #cancel-button:hover {
     background-color: #bbb;
 }
+
+.date-row {
+    display: flex;
+    gap: 15px;
+}
+
+.date-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-group label {
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.date-group input {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    width: auto;
+    flex: 1;
+}
