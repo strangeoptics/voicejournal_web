@@ -1,15 +1,45 @@
-.settings {
-    margin-bottom: 20px;
-    text-align: center;
-    padding: 10px;
+.settings-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+    line-height: 1;
+    color: #666;
+    transition: transform 0.3s ease;
+}
+
+.settings-toggle:hover {
+    color: #333;
+    transform: rotate(90deg);
+}
+
+.settings-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease, margin 0.3s ease;
     background-color: #f9f9f9;
     border-radius: 5px;
+    border: 0px solid #eee;
+    margin-bottom: 0;
+    padding: 0 10px;
+    text-align: center;
+}
+
+.settings-panel.open {
+    max-height: 100px; /* Ausreichend Platz für den Inhalt */
     border: 1px solid #eee;
+    padding: 10px;
+    margin-bottom: 20px;
 }
 
 #api-url {
     padding: 8px;
-    width: 250px;
+    width: 200px;
     border-radius: 4px;
     border: 1px solid #ddd;
     margin-right: 10px;

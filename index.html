@@ -13,8 +13,9 @@
 <body>
     <h1>Journal-Einträge</h1>
 
-    <div class="container">
-        <div class="settings">
+    <div class="container" style="position: relative;">
+        <button id="settings-toggle" class="settings-toggle" title="Einstellungen">⚙️</button>
+        <div id="settings-panel" class="settings-panel">
             <label for="api-url">API Host:</label>
             <input type="text" id="api-url" placeholder="localhost">
             <button id="refresh-api">Verbinden</button>

@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadMoreButton = document.getElementById('load-more-button');
     const apiUrlInput = document.getElementById('api-url');
     const refreshApiButton = document.getElementById('refresh-api');
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
     
     // API Host aus LocalStorage laden oder Standardwert setzen
     let apiHost = localStorage.getItem('voicejournal_api_host') || 'localhost';
@@ -168,6 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listener für Neuer Eintrag Button
     newEntryButton.addEventListener('click', () => openEditModal(null));
+
+    // Event Listener für Settings Toggle
+    settingsToggle.addEventListener('click', () => {
+        settingsPanel.classList.toggle('open');
+    });
 
     // Event Listener für API Host Änderung
     refreshApiButton.addEventListener('click', () => {
