@@ -106,3 +106,18 @@ h1 {
 .entry-content {
     white-space: pre-wrap;
 }
+
+.entry-categories {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.entry-category-tag {
+    background-color: #dcdcdc;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 0.75em;
+    color: #555;
+}

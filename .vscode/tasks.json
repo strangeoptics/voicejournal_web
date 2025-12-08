@@ -16,6 +16,14 @@
 			"args": [],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "append_categories_css",
+			"type": "shell",
+			"command": "echo \".entry-categories { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; } .entry-category-tag { background-color: #dcdcdc; border-radius: 12px; padding: 2px 8px; font-size: 0.75em; color: #555; }\" >> c:\\programming\\projects\\voicejournal\\style.css",
+			"args": [],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

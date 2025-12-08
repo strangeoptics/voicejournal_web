@@ -138,21 +138,37 @@ document.addEventListener('DOMContentLoaded', () => {
             bubble.dataset.id = entry.id;
             
             // Long Click Logic für das Öffnen des Modals
-            let pressTimer;
-            const startPress = () => {
-                pressTimer = setTimeout(() => {
-                    openEditModal(entry);
-                }, 800); // 800ms für Long Click
+            let pressTimer = null;
+            const startPress = (e) => {
+                // Nur Linksklick oder Touch
+                if (e.type === 'mousedown' && e.button !== 0) return;
+
+                if (pressTimer === null) {
+                    pressTimer = setTimeout(() => {
+                        openEditModal(entry);
+                        pressTimer = null;
+                    }, 600); // 600ms für Long Click
+                }
             };
             const cancelPress = () => {
-                clearTimeout(pressTimer);
+                if (pressTimer !== null) {
+                    clearTimeout(pressTimer);
+                    pressTimer = null;
+                }
             };
 
             bubble.addEventListener('mousedown', startPress);
-            bubble.addEventListener('touchstart', startPress);
+            bubble.addEventListener('touchstart', startPress, { passive: true });
             bubble.addEventListener('mouseup', cancelPress);
             bubble.addEventListener('mouseleave', cancelPress);
             bubble.addEventListener('touchend', cancelPress);
+            bubble.addEventListener('touchmove', cancelPress, { passive: true });
+            
+            // Prevent context menu on long press
+            bubble.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                return false;
+            });
 
             const content = document.createElement('div');
             content.classList.add('entry-content');
@@ -171,6 +187,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             bubble.appendChild(content);
             bubble.appendChild(timestamp);
+
+            if (entry.categoryIds && entry.categoryIds.length > 0) {
+                const otherCategories = entry.categoryIds
+                    .filter(id => id != currentCategoryId)
+                    .map(id => {
+                        const cat = allCategories.find(c => c.id === id);
+                        return cat ? cat.category : '';
+                    })
+                    .filter(name => name !== '');
+
+                if (otherCategories.length > 0) {
+                    const categoriesDiv = document.createElement('div');
+                    categoriesDiv.classList.add('entry-categories');
+                    
+                    otherCategories.forEach(catName => {
+                        const tag = document.createElement('span');
+                        tag.classList.add('entry-category-tag');
+                        tag.textContent = catName;
+                        categoriesDiv.appendChild(tag);
+                    });
+                    
+                    bubble.appendChild(categoriesDiv);
+                }
+            }
+
             journalEntriesContainer.appendChild(bubble);
         });
     }
@@ -359,6 +400,36 @@ document.addEventListener('DOMContentLoaded', () => {
                             timeString += ` - ${endTimeString}`;
                         }
                         timestampElement.textContent = timeString;
+                    }
+
+                    // Update categories display
+                    let categoriesDiv = entryElement.querySelector('.entry-categories');
+                    if (categoriesDiv) {
+                        categoriesDiv.remove();
+                    }
+
+                    if (entryData.categoryIds && entryData.categoryIds.length > 0) {
+                        const otherCategories = entryData.categoryIds
+                            .filter(id => id != currentCategoryId)
+                            .map(id => {
+                                const cat = allCategories.find(c => c.id === id);
+                                return cat ? cat.category : '';
+                            })
+                            .filter(name => name !== '');
+
+                        if (otherCategories.length > 0) {
+                            categoriesDiv = document.createElement('div');
+                            categoriesDiv.classList.add('entry-categories');
+                            
+                            otherCategories.forEach(catName => {
+                                const tag = document.createElement('span');
+                                tag.classList.add('entry-category-tag');
+                                tag.textContent = catName;
+                                categoriesDiv.appendChild(tag);
+                            });
+                            
+                            entryElement.appendChild(categoriesDiv);
+                        }
                     }
 
                     // Update the local object so next openEditModal has correct data
