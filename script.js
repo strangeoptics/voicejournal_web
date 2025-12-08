@@ -136,8 +136,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const bubble = document.createElement('div');
             bubble.classList.add('journal-entry');
             bubble.dataset.id = entry.id;
-            // Click-Event zum Öffnen des Modals hinzufügen
-            bubble.addEventListener('click', () => openEditModal(entry));
+            
+            // Long Click Logic für das Öffnen des Modals
+            let pressTimer;
+            const startPress = () => {
+                pressTimer = setTimeout(() => {
+                    openEditModal(entry);
+                }, 800); // 800ms für Long Click
+            };
+            const cancelPress = () => {
+                clearTimeout(pressTimer);
+            };
+
+            bubble.addEventListener('mousedown', startPress);
+            bubble.addEventListener('touchstart', startPress);
+            bubble.addEventListener('mouseup', cancelPress);
+            bubble.addEventListener('mouseleave', cancelPress);
+            bubble.addEventListener('touchend', cancelPress);
 
             const content = document.createElement('div');
             content.classList.add('entry-content');
