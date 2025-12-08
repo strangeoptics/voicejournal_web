@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const bubble = document.createElement('div');
             bubble.classList.add('journal-entry');
+            bubble.dataset.id = entry.id;
             // Click-Event zum Öffnen des Modals hinzufügen
             bubble.addEventListener('click', () => openEditModal(entry));
 
@@ -318,9 +319,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // UI aktualisieren (Liste neu laden)
-            const categoryId = categorySelect.value;
-            fetchJournalEntries(categoryId);
+            if (currentEditingEntry) {
+                // Update existing entry in DOM without reloading list
+                const entryElement = document.querySelector(`.journal-entry[data-id="${currentEditingEntry.id}"]`);
+                if (entryElement) {
+                    const contentElement = entryElement.querySelector('.entry-content');
+                    const timestampElement = entryElement.querySelector('.timestamp');
+                    
+                    if (contentElement) contentElement.textContent = entryData.content;
+                    
+                    const dateObj = new Date(entryData.start_datetime);
+                    if (timestampElement) timestampElement.textContent = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+
+                    // Update the local object so next openEditModal has correct data
+                    Object.assign(currentEditingEntry, entryData);
+                }
+            } else {
+                // UI aktualisieren (Liste neu laden)
+                const categoryId = categorySelect.value;
+                fetchJournalEntries(categoryId);
+            }
+            
             closeEditModal();
 
         } catch (error) {
