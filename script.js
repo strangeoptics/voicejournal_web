@@ -145,7 +145,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const timestamp = document.createElement('span');
             timestamp.classList.add('timestamp');
-            timestamp.textContent = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            
+            let timeString = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            if (entry.stop_datetime) {
+                const endDateObj = new Date(entry.stop_datetime);
+                const endTimeString = endDateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                timeString += ` - ${endTimeString}`;
+            }
+            timestamp.textContent = timeString;
 
             bubble.appendChild(content);
             bubble.appendChild(timestamp);
@@ -329,7 +336,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (contentElement) contentElement.textContent = entryData.content;
                     
                     const dateObj = new Date(entryData.start_datetime);
-                    if (timestampElement) timestampElement.textContent = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                    if (timestampElement) {
+                        let timeString = dateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                        if (entryData.stop_datetime) {
+                            const endDateObj = new Date(entryData.stop_datetime);
+                            const endTimeString = endDateObj.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                            timeString += ` - ${endTimeString}`;
+                        }
+                        timestampElement.textContent = timeString;
+                    }
 
                     // Update the local object so next openEditModal has correct data
                     Object.assign(currentEditingEntry, entryData);
