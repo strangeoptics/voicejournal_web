@@ -78,7 +78,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`${apiUrl}/journalentries/category/${categoryId}?page=${currentPage}&pageSize=${pageSize}`);
+            const selectedCategory = allCategories.find(c => c.id == categoryId);
+            let currentSize = pageSize;
+            if (selectedCategory && selectedCategory.showAll) {
+                currentSize = 10000;
+            }
+
+            const response = await fetch(`${apiUrl}/journalentries/category/${categoryId}?page=${currentPage}&pageSize=${currentSize}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -91,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             displayJournalEntries(entries);
 
             // Button Logik
-            if (entries.length < pageSize) {
+            if (entries.length < currentSize) {
                 loadMoreButton.style.display = 'none';
             } else {
                 loadMoreButton.style.display = 'block';
@@ -186,8 +192,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             timestamp.textContent = timeString;
 
-            bubble.appendChild(content);
-            bubble.appendChild(timestamp);
+            const footer = document.createElement('div');
+            footer.classList.add('entry-footer');
+
+            const categoriesDiv = document.createElement('div');
+            categoriesDiv.classList.add('entry-categories');
 
             if (entry.categoryIds && entry.categoryIds.length > 0) {
                 const otherCategories = entry.categoryIds
@@ -199,19 +208,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     .filter(name => name !== '');
 
                 if (otherCategories.length > 0) {
-                    const categoriesDiv = document.createElement('div');
-                    categoriesDiv.classList.add('entry-categories');
-                    
                     otherCategories.forEach(catName => {
                         const tag = document.createElement('span');
                         tag.classList.add('entry-category-tag');
                         tag.textContent = catName;
                         categoriesDiv.appendChild(tag);
                     });
-                    
-                    bubble.appendChild(categoriesDiv);
                 }
             }
+
+            footer.appendChild(categoriesDiv);
+            footer.appendChild(timestamp);
+
+            bubble.appendChild(content);
+            bubble.appendChild(footer);
 
             journalEntriesContainer.appendChild(bubble);
         });
@@ -457,7 +467,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                 categoriesDiv.appendChild(tag);
                             });
                             
-                            entryElement.appendChild(categoriesDiv);
+                            const footer = entryElement.querySelector('.entry-footer');
+                            if (footer) {
+                                const timestampEl = footer.querySelector('.timestamp');
+                                if (timestampEl) {
+                                    footer.insertBefore(categoriesDiv, timestampEl);
+                                } else {
+                                    footer.appendChild(categoriesDiv);
+                                }
+                            } else {
+                                entryElement.appendChild(categoriesDiv);
+                            }
                         }
                     }
 

@@ -88,9 +88,7 @@ h1 {
 .journal-entry .timestamp {
     font-size: 0.8em;
     color: #666;
-    display: block;
-    margin-top: 5px;
-    text-align: right;
+    white-space: nowrap;
 }
 
 .date-header {
@@ -107,8 +105,15 @@ h1 {
     white-space: pre-wrap;
 }
 
-.entry-categories {
+.entry-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-top: 8px;
+    gap: 10px;
+}
+
+.entry-categories {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
