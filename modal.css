@@ -53,12 +53,14 @@
 }
 
 .modal-actions {
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 .modal-actions button {
     padding: 10px 20px;
-    margin-left: 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -72,6 +74,15 @@
 
 #save-button:hover {
     background-color: #0056b3;
+}
+
+#delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+#delete-button:hover {
+    background-color: #c82333;
 }
 
 #cancel-button {

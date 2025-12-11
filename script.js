@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeButton = document.querySelector('.close-button');
     const saveButton = document.getElementById('save-button');
     const cancelButton = document.getElementById('cancel-button');
+    const deleteButton = document.getElementById('delete-button');
     const editContentTextarea = document.getElementById('edit-content');
     const editDateInput = document.getElementById('edit-date');
     const editEndDateInput = document.getElementById('edit-end-date');
@@ -265,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (entry) {
             modalTitle.textContent = 'Eintrag bearbeiten';
+            deleteButton.style.display = 'block';
             editContentTextarea.value = entry.content;
             
             // Datum für datetime-local formatieren (YYYY-MM-DDTHH:mm)
@@ -284,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             modalTitle.textContent = 'Neuer Eintrag';
+            deleteButton.style.display = 'none';
             editContentTextarea.value = '';
             
             // Aktuelles Datum setzen
@@ -329,6 +332,32 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeEditModal() {
         modal.style.display = 'none';
         currentEditingEntry = null;
+    }
+
+    async function deleteEntry() {
+        if (!currentEditingEntry) return;
+
+        try {
+            const response = await fetch(`${apiUrl}/journalentries/${currentEditingEntry.id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Remove entry from DOM
+            const entryElement = document.querySelector(`.journal-entry[data-id="${currentEditingEntry.id}"]`);
+            if (entryElement) {
+                entryElement.remove();
+            }
+
+            closeEditModal();
+
+        } catch (error) {
+            console.error('Fehler beim Löschen des Eintrags:', error);
+            alert('Fehler beim Löschen des Eintrags.');
+        }
     }
 
     async function saveEntry() {
@@ -453,6 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeButton.addEventListener('click', closeEditModal);
     cancelButton.addEventListener('click', closeEditModal);
     saveButton.addEventListener('click', saveEntry);
+    deleteButton.addEventListener('click', deleteEntry);
     window.addEventListener('click', (event) => {
         if (event.target == modal) {
             closeEditModal();
