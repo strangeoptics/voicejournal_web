@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const refreshApiButton = document.getElementById('refresh-api');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsPanel = document.getElementById('settings-panel');
+    const pageSizeInput = document.getElementById('page-size');
     
     // API Host aus LocalStorage laden oder Standardwert setzen
     let apiHost = localStorage.getItem('voicejournal_api_host') || 'localhost';
@@ -14,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Paginierung Status
     let currentPage = 1;
-    const pageSize = 5;
+    let pageSize = parseInt(localStorage.getItem('voicejournal_page_size')) || 5;
+    pageSizeInput.value = pageSize;
     let currentCategoryId = null;
     let lastRenderedDate = null;
 
@@ -254,11 +256,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listener für API Host Änderung
     refreshApiButton.addEventListener('click', () => {
         let newHost = apiUrlInput.value.trim();
-        
-        if (newHost) {
+        let newPageSize = parseInt(pageSizeInput.value);
+
+        if (newHost && newPageSize > 0) {
             apiHost = newHost;
             apiUrl = `http://${apiHost}:8080`;
+            pageSize = newPageSize;
+            
             localStorage.setItem('voicejournal_api_host', apiHost);
+            localStorage.setItem('voicejournal_page_size', pageSize);
             
             // UI zurücksetzen und neu laden
             journalEntriesContainer.innerHTML = '';
