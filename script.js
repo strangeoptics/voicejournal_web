@@ -1,7 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     const categorySelect = document.getElementById('category-select');
     const journalEntriesContainer = document.getElementById('journal-entries');
-    const loadMoreButton = document.getElementById('load-more-button');
+    
+    // Create Sentinel dynamically
+    const scrollSentinel = document.createElement('div');
+    scrollSentinel.id = 'scroll-sentinel';
+    scrollSentinel.style.height = '20px';
+    scrollSentinel.style.textAlign = 'center';
+    scrollSentinel.style.color = '#888';
+    scrollSentinel.style.width = '100%';
+
     const apiUrlInput = document.getElementById('api-url');
     const refreshApiButton = document.getElementById('refresh-api');
     const settingsToggle = document.getElementById('settings-toggle');
@@ -19,6 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
     pageSizeInput.value = pageSize;
     let currentCategoryId = null;
     let lastRenderedDate = null;
+    let isLoading = false;
+    let hasMore = true;
+
+    // Intersection Observer für Infinite Scroll
+    const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMore && currentCategoryId) {
+            fetchJournalEntries(currentCategoryId, true);
+        }
+    }, { 
+        root: journalEntriesContainer,
+        threshold: 0.1 
+    });
+
+    observer.observe(scrollSentinel);
 
     // Modal Elemente
     const modal = document.getElementById('edit-modal');
@@ -45,7 +67,10 @@ document.addEventListener('DOMContentLoaded', () => {
             populateCategoryDropdown(categories);
         } catch (error) {
             console.error('Fehler beim Laden der Kategorien:', error);
-            journalEntriesContainer.innerHTML = '<p>Fehler beim Laden der Kategorien. Ist die API erreichbar?</p>';
+            journalEntriesContainer.innerHTML = `<p style="color: red; padding: 20px;">Fehler beim Laden der Kategorien.<br>
+            API URL: ${apiUrl}/categories<br>
+            Fehler: ${error.message}<br>
+            Ist das Backend gestartet?</p>`;
         }
     }
 
@@ -64,19 +89,23 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchJournalEntries(categoryId, append = false) {
         if (!categoryId) {
             journalEntriesContainer.innerHTML = '';
-            loadMoreButton.style.display = 'none';
+            scrollSentinel.textContent = '';
             return;
         }
+
+        if (isLoading) return;
+        isLoading = true;
 
         if (!append) {
             currentPage = 1;
             currentCategoryId = categoryId;
             lastRenderedDate = null;
-            journalEntriesContainer.innerHTML = '<p>Lade Einträge...</p>';
-            loadMoreButton.style.display = 'none';
+            hasMore = true;
+            journalEntriesContainer.innerHTML = '';
+            journalEntriesContainer.appendChild(scrollSentinel);
+            scrollSentinel.textContent = 'Lade Einträge...';
         } else {
-            loadMoreButton.textContent = 'Lade...';
-            loadMoreButton.disabled = true;
+            scrollSentinel.textContent = 'Lade mehr...';
         }
 
         try {
@@ -92,20 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const entries = await response.json();
             
-            if (!append) {
-                journalEntriesContainer.innerHTML = '';
-            }
-
             displayJournalEntries(entries);
 
-            // Button Logik
+            // Check if we reached the end
             if (entries.length < currentSize) {
-                loadMoreButton.style.display = 'none';
+                hasMore = false;
+                scrollSentinel.textContent = '';
             } else {
-                loadMoreButton.style.display = 'block';
-                loadMoreButton.textContent = 'Mehr laden';
-                loadMoreButton.disabled = false;
+                scrollSentinel.textContent = ''; // Clear text, sentinel remains for observer
             }
+            
+            // Ensure sentinel is at the bottom
+            journalEntriesContainer.appendChild(scrollSentinel);
 
             currentPage++;
 
@@ -114,10 +141,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`Fehler beim Laden der Journal-Einträge für Kategorie ${categoryId}:`, error);
             if (!append) {
                 journalEntriesContainer.innerHTML = `<p>Fehler beim Laden der Einträge für die ausgewählte Kategorie.</p>`;
-            } else {
-                loadMoreButton.textContent = 'Fehler beim Laden';
-                loadMoreButton.disabled = false;
             }
+            scrollSentinel.textContent = 'Fehler beim Laden';
+            journalEntriesContainer.appendChild(scrollSentinel);
+        } finally {
+            isLoading = false;
         }
     }
 
@@ -238,13 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fetchJournalEntries(categoryId);
     });
 
-    // Event Listener für Load More Button
-    loadMoreButton.addEventListener('click', () => {
-        if (currentCategoryId) {
-            fetchJournalEntries(currentCategoryId, true);
-        }
-    });
-
     // Event Listener für Neuer Eintrag Button
     newEntryButton.addEventListener('click', () => openEditModal(null));
 
@@ -268,7 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // UI zurücksetzen und neu laden
             journalEntriesContainer.innerHTML = '';
-            loadMoreButton.style.display = 'none';
+            journalEntriesContainer.appendChild(scrollSentinel);
+            scrollSentinel.textContent = '';
             categorySelect.innerHTML = '<option value="">--Bitte eine Kategorie auswählen--</option>';
             currentCategoryId = null;
             
