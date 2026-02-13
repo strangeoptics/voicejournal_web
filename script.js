@@ -195,12 +195,24 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Long Click Logic für das Öffnen des Modals
             let pressTimer = null;
+            let startX = 0;
+            let startY = 0;
+
             const startPress = (e) => {
                 // Nur Linksklick oder Touch
                 // Ignore checks checkboxes
                 if (e.target.type === 'checkbox') return;
 
                 if (e.type === 'mousedown' && e.button !== 0) return;
+
+                // Koordinaten speichern
+                if (e.type === 'touchstart') {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                } else {
+                    startX = e.clientX;
+                    startY = e.clientY;
+                }
 
                 if (pressTimer === null) {
                     pressTimer = setTimeout(() => {
@@ -209,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 600); // 600ms für Long Click
                 }
             };
+
             const cancelPress = () => {
                 if (pressTimer !== null) {
                     clearTimeout(pressTimer);
@@ -216,12 +229,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
+            // Überprüfen, ob die Maus/Finger bewegt wurde um Long Press abzubrechen (z.B. beim Text markieren)
+            const checkMove = (e) => {
+                if (pressTimer === null) return;
+
+                let currentX, currentY;
+                if (e.type === 'touchmove') {
+                    currentX = e.touches[0].clientX;
+                    currentY = e.touches[0].clientY;
+                } else {
+                    currentX = e.clientX;
+                    currentY = e.clientY;
+                }
+
+                // Wenn Bewegung > 10 Pixel, dann abbrechen
+                if (Math.abs(currentX - startX) > 10 || Math.abs(currentY - startY) > 10) {
+                    cancelPress();
+                }
+            };
+
             bubble.addEventListener('mousedown', startPress);
             bubble.addEventListener('touchstart', startPress, { passive: true });
+            
             bubble.addEventListener('mouseup', cancelPress);
             bubble.addEventListener('mouseleave', cancelPress);
             bubble.addEventListener('touchend', cancelPress);
-            bubble.addEventListener('touchmove', cancelPress, { passive: true });
+            
+            // Bei Bewegung prüfen (statt direkt abzubrechen bei touchmove)
+            bubble.addEventListener('touchmove', checkMove, { passive: true });
+            bubble.addEventListener('mousemove', checkMove);
             
             // Prevent context menu on long press
             bubble.addEventListener('contextmenu', (e) => {
