@@ -149,6 +149,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Hilfsfunktion zum Aktualisieren eines Eintrags auf dem Server
+    async function updateEntryOnServer(entry) {
+        const url = `${apiUrl}/journalentries/${entry.id}`;
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(entry)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const text = await response.text();
+        return text ? JSON.parse(text) : {};
+    }
+
     // Journal-Einträge als Chat-Liste anzeigen
     function displayJournalEntries(entries) {
         if (entries.length === 0 && !journalEntriesContainer.hasChildNodes()) {
@@ -178,6 +197,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let pressTimer = null;
             const startPress = (e) => {
                 // Nur Linksklick oder Touch
+                // Ignore checks checkboxes
+                if (e.target.type === 'checkbox') return;
+
                 if (e.type === 'mousedown' && e.button !== 0) return;
 
                 if (pressTimer === null) {
@@ -207,9 +229,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 return false;
             });
 
+            // Checkbox Logic
+            let isCheckable = false;
+            if (entry.categoryIds && entry.categoryIds.length > 0) {
+                entry.categoryIds.forEach(catId => {
+                    const cat = allCategories.find(c => c.id === catId);
+                    if (cat && cat.checkable) {
+                        isCheckable = true;
+                    }
+                });
+            }
+
             const content = document.createElement('div');
             content.classList.add('entry-content');
             content.textContent = entry.content;
+
+            if (isCheckable) {
+                // Wrapper für Checkbox und Content
+                const contentWrapper = document.createElement('div');
+                contentWrapper.style.display = 'flex';
+                contentWrapper.style.alignItems = 'flex-start';
+                contentWrapper.style.gap = '10px';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = entry.checked || false;
+                checkbox.style.marginTop = '4px'; // Better alignment with text
+                checkbox.style.cursor = 'pointer';
+
+                checkbox.addEventListener('change', async (e) => {
+                    e.stopPropagation(); // Stop bubbling
+                    const isChecked = e.target.checked;
+                    const originalState = entry.checked;
+                    
+                    entry.checked = isChecked;
+
+                    try {
+                        await updateEntryOnServer(entry);
+                        // Also update currentEditingEntry if happens to be open? Not needed as modal is modal.
+                    } catch (error) {
+                        console.error('Update failed', error);
+                        entry.checked = originalState;
+                        e.target.checked = originalState;
+                        alert('Fehler beim Speichern des Status.');
+                    }
+                });
+
+                contentWrapper.appendChild(checkbox);
+                contentWrapper.appendChild(content);
+                bubble.appendChild(contentWrapper);
+            } else {
+                bubble.appendChild(content);
+            }
 
             const timestamp = document.createElement('span');
             timestamp.classList.add('timestamp');
@@ -250,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
             footer.appendChild(categoriesDiv);
             footer.appendChild(timestamp);
 
-            bubble.appendChild(content);
             bubble.appendChild(footer);
 
             journalEntriesContainer.appendChild(bubble);
